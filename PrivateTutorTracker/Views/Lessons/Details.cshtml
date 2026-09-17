@@ -1,0 +1,202 @@
+@model PrivateTutorTracker.Models.Lesson
+
+@{
+    ViewData["Title"] = "Ders Detayı";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">← Geri</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Düzenle</a>
+    @if (Model.Durum == "Planlı")
+    {
+        <form asp-action="Complete" asp-route-id="@Model.Id" method="post" style="display:inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-success">Tamamlandı Olarak İşaretle</button>
+        </form>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Ders Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Öğrenci:</dt>
+                    <dd class="col-sm-9">
+                        <a asp-controller="Students" asp-action="Details" asp-route-id="@Model.Student.Id" class="h5">
+                            @Model.Student.AdSoyad
+                        </a>
+                    </dd>
+
+                    <dt class="col-sm-3">Tarih:</dt>
+                    <dd class="col-sm-9">
+                        <strong>@Model.Baslangic.ToString("dddd, dd MMMM yyyy")</strong>
+                    </dd>
+
+                    <dt class="col-sm-3">Saat:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info fs-6">
+                            @Model.Baslangic.ToString("HH:mm") - @Model.Bitis.ToString("HH:mm")
+                        </span>
+                        <span class="text-muted">(@Model.Sure dakika)</span>
+                    </dd>
+
+                    <dt class="col-sm-3">Konu:</dt>
+                    <dd class="col-sm-9">
+                        <h6>@Model.Konu</h6>
+                    </dd>
+
+                    <dt class="col-sm-3">Ders Türü:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Tur == PrivateTutorTracker.Models.LessonType.Online)
+                        {
+                            <span class="badge bg-info fs-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-fill me-1" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+                                </svg>
+                                Online
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary fs-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill me-1" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                </svg>
+                                Yüz Yüze
+                            </span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Ücret:</dt>
+                    <dd class="col-sm-9">
+                        <h4 class="text-success mb-0">@Model.Ucret.ToString("N0")₺</h4>
+                    </dd>
+
+                    <dt class="col-sm-3">Durum:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Durum == "Tamamlandı")
+                        {
+                            <span class="badge bg-success fs-6">@Model.Durum</span>
+                        }
+                        else if (Model.Durum == "Planlı")
+                        {
+                            <span class="badge bg-primary fs-6">@Model.Durum</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger fs-6">@Model.Durum</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Ödeme Durumu:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.OdemeAlindi)
+                        {
+                            <span class="badge bg-success fs-6">✓ Ödeme Alındı</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark fs-6">Ödeme Bekleniyor</span>
+                        }
+                    </dd>
+                </dl>
+
+                @if (!string.IsNullOrEmpty(Model.Not))
+                {
+                    <hr />
+                    <h6>Notlar (Genel):</h6>
+                    <div class="alert alert-light">
+                        @Model.Not
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.DersNotu))
+                {
+                    <hr />
+                    <h6>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lock-fill me-2" viewBox="0 0 16 16">
+                            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                        </svg>
+                        Ders Notu (Özel):
+                    </h6>
+                    <div class="alert alert-warning">
+                        <strong>🔒 Sadece Size Özel</strong>
+                        <p class="mb-0 mt-2">@Model.DersNotu</p>
+                    </div>
+                }
+
+                <hr />
+                <div class="row">
+                    <div class="col-sm-6">
+                        <small class="text-muted">
+                            Oluşturulma: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </small>
+                    </div>
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <div class="col-sm-6 text-end">
+                            <small class="text-muted">
+                                Son Güncelleme: @Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Öğrenci İletişim</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Email:</strong></p>
+                <p>@(Model.Student.Email ?? "Belirtilmemiş")</p>
+
+                <p class="mb-1"><strong>Telefon:</strong></p>
+                <p>@(Model.Student.Telefon ?? "Belirtilmemiş")</p>
+
+                <a asp-controller="Students" asp-action="Details" asp-route-id="@Model.Student.Id"
+                   class="btn btn-outline-primary w-100 mt-2">
+                    Öğrenci Detayına Git
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-warning">
+                <h6 class="mb-0">Hızlı İşlemler</h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Durum == "Planlı")
+                {
+                    <form asp-action="Complete" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success w-100 mb-2">
+                            ✓ Tamamlandı Olarak İşaretle
+                        </button>
+                    </form>
+                    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger w-100 mb-2">
+                            ✗ İptal Et
+                        </button>
+                    </form>
+                }
+
+                @if (!Model.OdemeAlindi)
+                {
+                    <a asp-controller="Payments" asp-action="Create" asp-route-studentId="@Model.StudentId"
+                       class="btn btn-outline-success w-100">
+                        + Ödeme Kaydı Ekle
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,409 @@
+@{
+    ViewData["Title"] = "Yıllık Karşılaştırma Raporu";
+    var year1 = (int)ViewBag.Year1;
+    var year2 = (int)ViewBag.Year2;
+    var monthlyComparison = ViewBag.MonthlyComparison as IEnumerable<dynamic>;
+    var year1TotalLessons = (int)ViewBag.Year1TotalLessons;
+    var year2TotalLessons = (int)ViewBag.Year2TotalLessons;
+    var year1TotalIncome = (decimal)ViewBag.Year1TotalIncome;
+    var year2TotalIncome = (decimal)ViewBag.Year2TotalIncome;
+    
+    var lessonChange = year2TotalLessons > 0 ? ((year1TotalLessons - year2TotalLessons) / (decimal)year2TotalLessons * 100) : 0;
+    var incomeChange = year2TotalIncome > 0 ? ((year1TotalIncome - year2TotalIncome) / year2TotalIncome * 100) : 0;
+}
+
+<style>
+    .comparison-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .year-selector {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .vs-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        display: inline-block;
+    }
+    .year-stat {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+    .year-stat.winner {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+        border: 2px solid #10b981;
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0.5rem 0;
+    }
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .comparison-table thead th {
+        background: #f3f4f6;
+        padding: 1rem;
+        font-weight: 600;
+        text-align: center;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    .comparison-table tbody td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .comparison-table tbody tr:hover {
+        background: #f9fafb;
+    }
+    .winner-cell {
+        background: rgba(16, 185, 129, 0.1);
+        font-weight: 700;
+        color: #10b981;
+    }
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-top: 2rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-bar-chart-steps me-2" viewBox="0 0 16 16">
+                    <path d="M.5 0a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 .5 0zM2 1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-1zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-1zm2 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-1zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-1z"/>
+                </svg>
+                Yıllık Karşılaştırma Raporu
+            </h2>
+            <p class="text-muted">İki yılın detaylı performans karşılaştırması</p>
+        </div>
+        <a asp-action="Dashboard" class="btn btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Dashboard'a Dön
+        </a>
+    </div>
+
+    <!-- Yıl Seçimi -->
+    <div class="year-selector">
+        <form method="get" asp-action="YearlyComparison" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-bold">İlk Yıl</label>
+                <select name="year1" class="form-select form-select-lg">
+                    @for (int y = DateTime.Today.Year; y >= DateTime.Today.Year - 10; y--)
+                    {
+                        <option value="@y" selected="@(y == year1)">@y</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="vs-badge">VS</div>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label fw-bold">İkinci Yıl</label>
+                <select name="year2" class="form-select form-select-lg">
+                    @for (int y = DateTime.Today.Year; y >= DateTime.Today.Year - 10; y--)
+                    {
+                        <option value="@y" selected="@(y == year2)">@y</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                    Karşılaştır
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Özet Karşılaştırma -->
+    <div class="comparison-card">
+        <h4 class="mb-4 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-trophy me-2" viewBox="0 0 16 16">
+                <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935z"/>
+            </svg>
+            Yıllık Özet
+        </h4>
+        <div class="row g-4">
+            <!-- Toplam Ders Karşılaştırması -->
+            <div class="col-md-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="year-stat @(year1TotalLessons > year2TotalLessons ? "winner" : "")">
+                            <div class="stat-label">@year1 Toplam Ders</div>
+                            <div class="stat-number">@year1TotalLessons</div>
+                            @if (year1TotalLessons > year2TotalLessons)
+                            {
+                                <span class="badge bg-success">🏆 Kazanan</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="year-stat @(year2TotalLessons > year1TotalLessons ? "winner" : "")">
+                            <div class="stat-label">@year2 Toplam Ders</div>
+                            <div class="stat-number">@year2TotalLessons</div>
+                            @if (year2TotalLessons > year1TotalLessons)
+                            {
+                                <span class="badge bg-success">🏆 Kazanan</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                @if (year2TotalLessons > 0)
+                {
+                    <div class="text-center mt-3">
+                        <span class="badge @(lessonChange >= 0 ? "bg-success" : "bg-danger") fs-6">
+                            @(lessonChange >= 0 ? "↑" : "↓") @Math.Abs(lessonChange).ToString("F1")% @(lessonChange >= 0 ? "artış" : "azalış")
+                        </span>
+                    </div>
+                }
+            </div>
+
+            <!-- Toplam Gelir Karşılaştırması -->
+            <div class="col-md-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="year-stat @(year1TotalIncome > year2TotalIncome ? "winner" : "")">
+                            <div class="stat-label">@year1 Toplam Gelir</div>
+                            <div class="stat-number">@year1TotalIncome.ToString("N0")₺</div>
+                            @if (year1TotalIncome > year2TotalIncome)
+                            {
+                                <span class="badge bg-success">🏆 Kazanan</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="year-stat @(year2TotalIncome > year1TotalIncome ? "winner" : "")">
+                            <div class="stat-label">@year2 Toplam Gelir</div>
+                            <div class="stat-number">@year2TotalIncome.ToString("N0")₺</div>
+                            @if (year2TotalIncome > year1TotalIncome)
+                            {
+                                <span class="badge bg-success">🏆 Kazanan</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                @if (year2TotalIncome > 0)
+                {
+                    <div class="text-center mt-3">
+                        <span class="badge @(incomeChange >= 0 ? "bg-success" : "bg-danger") fs-6">
+                            @(incomeChange >= 0 ? "↑" : "↓") @Math.Abs(incomeChange).ToString("F1")% @(incomeChange >= 0 ? "artış" : "azalış")
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Aylık Detay Tablosu -->
+    <div class="comparison-card">
+        <h4 class="mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-calendar3 me-2" viewBox="0 0 16 16">
+                <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+            </svg>
+            Aylık Karşılaştırma Detayları
+        </h4>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Ay</th>
+                    <th>@year1 Ders Sayısı</th>
+                    <th>@year2 Ders Sayısı</th>
+                    <th>@year1 Gelir</th>
+                    <th>@year2 Gelir</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var month in monthlyComparison)
+                {
+                    var data = (dynamic)month;
+                    var y1CountBetter = data.Year1Count > data.Year2Count;
+                    var y2CountBetter = data.Year2Count > data.Year1Count;
+                    var y1IncomeBetter = (decimal)data.Year1Income > (decimal)data.Year2Income;
+                    var y2IncomeBetter = (decimal)data.Year2Income > (decimal)data.Year1Income;
+                    
+                    <tr>
+                        <td><strong>@data.Month</strong></td>
+                        <td class="@(y1CountBetter ? "winner-cell" : "")">@data.Year1Count</td>
+                        <td class="@(y2CountBetter ? "winner-cell" : "")">@data.Year2Count</td>
+                        <td class="@(y1IncomeBetter ? "winner-cell" : "")">@(((decimal)data.Year1Income).ToString("N0"))₺</td>
+                        <td class="@(y2IncomeBetter ? "winner-cell" : "")">@(((decimal)data.Year2Income).ToString("N0"))₺</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Grafikler -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="comparison-card">
+                <h5 class="mb-3">Aylık Ders Sayısı Karşılaştırması</h5>
+                <div class="chart-container">
+                    <canvas id="lessonComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="comparison-card">
+                <h5 class="mb-3">Aylık Gelir Karşılaştırması</h5>
+                <div class="chart-container">
+                    <canvas id="incomeComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const comparisonData = @Html.Raw(Json.Serialize(monthlyComparison));
+    const year1 = @year1;
+    const year2 = @year2;
+
+    // Ders Sayısı Karşılaştırma Grafiği
+    new Chart(document.getElementById('lessonComparisonChart'), {
+        type: 'bar',
+        data: {
+            labels: comparisonData.map(m => m.month),
+            datasets: [
+                {
+                    label: year1 + ' Ders Sayısı',
+                    data: comparisonData.map(m => m.year1Count),
+                    backgroundColor: '#667eea',
+                    borderRadius: 8
+                },
+                {
+                    label: year2 + ' Ders Sayısı',
+                    data: comparisonData.map(m => m.year2Count),
+                    backgroundColor: '#10b981',
+                    borderRadius: 8
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: { size: 13 }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Gelir Karşılaştırma Grafiği
+    new Chart(document.getElementById('incomeComparisonChart'), {
+        type: 'line',
+        data: {
+            labels: comparisonData.map(m => m.month),
+            datasets: [
+                {
+                    label: year1 + ' Gelir (₺)',
+                    data: comparisonData.map(m => m.year1Income),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                },
+                {
+                    label: year2 + ' Gelir (₺)',
+                    data: comparisonData.map(m => m.year2Income),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: { size: 13 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toLocaleString('tr-TR') + '₺';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('tr-TR') + '₺';
+                        }
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+</script>
+}
+

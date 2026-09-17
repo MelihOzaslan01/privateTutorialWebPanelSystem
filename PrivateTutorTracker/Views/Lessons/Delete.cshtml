@@ -1,0 +1,61 @@
+@model PrivateTutorTracker.Models.Lesson
+
+@{
+    ViewData["Title"] = "Dersi Sil";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Dersi Sil</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5>Bu işlemi onaylıyor musunuz?</h5>
+                    <p class="mb-0">Ders kaydı kalıcı olarak silinecektir.</p>
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Öğrenci:</dt>
+                    <dd class="col-sm-8">@Model.Student.AdSoyad</dd>
+
+                    <dt class="col-sm-4">Tarih/Saat:</dt>
+                    <dd class="col-sm-8">
+                        @Model.Baslangic.ToString("dd.MM.yyyy HH:mm") - @Model.Bitis.ToString("HH:mm")
+                    </dd>
+
+                    <dt class="col-sm-4">Konu:</dt>
+                    <dd class="col-sm-8">@Model.Konu</dd>
+
+                    <dt class="col-sm-4">Ücret:</dt>
+                    <dd class="col-sm-8">@Model.Ucret.ToString("N0")₺</dd>
+
+                    <dt class="col-sm-4">Durum:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Durum == "Tamamlandı")
+                        {
+                            <span class="badge bg-success">@Model.Durum</span>
+                        }
+                        else if (Model.Durum == "Planlı")
+                        {
+                            <span class="badge bg-primary">@Model.Durum</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">@Model.Durum</span>
+                        }
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

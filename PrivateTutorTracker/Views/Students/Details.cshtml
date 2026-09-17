@@ -1,0 +1,259 @@
+@model PrivateTutorTracker.Models.Student
+
+@{
+    ViewData["Title"] = "Öğrenci Detayı";
+}
+
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    <a asp-action="Index" class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+        </svg>
+        Geri
+    </a>
+    @if (!string.IsNullOrEmpty(Model.Email))
+    {
+        <a asp-action="SendEmail" asp-route-id="@Model.Id" class="btn btn-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+            </svg>
+            Email Gönder
+        </a>
+    }
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+        </svg>
+        Düzenle
+    </a>
+    @if (Model.AktifMi)
+    {
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+            </svg>
+            Pasif Yap
+        </a>
+    }
+    else
+    {
+        <form asp-action="Activate" asp-route-id="@Model.Id" method="post" style="display: inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                </svg>
+                Aktif Yap
+            </button>
+        </form>
+    }
+    <a asp-action="PermanentDelete" asp-route-id="@Model.Id" class="btn btn-danger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+        </svg>
+        Kalıcı Sil
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Öğrenci Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <h4 class="mb-3">@Model.AdSoyad</h4>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Email:</dt>
+                    <dd class="col-sm-8">@(Model.Email ?? "-")</dd>
+
+                    <dt class="col-sm-4">Telefon:</dt>
+                    <dd class="col-sm-8">@(Model.Telefon ?? "-")</dd>
+
+                    <dt class="col-sm-4">Durum:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.AktifMi)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Pasif</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Kayıt Tarihi:</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("dd.MM.yyyy")</dd>
+                </dl>
+
+                @if (!string.IsNullOrEmpty(Model.Not))
+                {
+                    <hr />
+                    <h6>Notlar:</h6>
+                    <p class="text-muted mb-0">@Model.Not</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">İstatistikler</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Toplam Ders:</span>
+                    <strong>@ViewBag.TotalLessons</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Toplam Gelir:</span>
+                    <strong>@ViewBag.TotalIncome.ToString("N0")₺</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Son Ders:</span>
+                    <strong>
+                        @if (ViewBag.LastLessonDate != null)
+                        {
+                            DateTime lastDate = ViewBag.LastLessonDate;
+                            @lastDate.ToString("dd.MM.yyyy")
+                        }
+                        else
+                        {
+                            <text>-</text>
+                        }
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Dersler</h5>
+                <a asp-controller="Lessons" asp-action="Create" asp-route-studentId="@Model.Id" class="btn btn-light btn-sm">
+                    Yeni Ders Ekle
+                </a>
+            </div>
+            <div class="card-body">
+                @if (Model.Lessons != null && Model.Lessons.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Konu</th>
+                                    <th>Süre</th>
+                                    <th>Ücret</th>
+                                    <th>Durum</th>
+                                    <th>Ödeme</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var lesson in Model.Lessons.Take(10))
+                                {
+                                    <tr>
+                                        <td>@lesson.Baslangic.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td>@lesson.Konu</td>
+                                        <td>@lesson.Sure dk</td>
+                                        <td>@lesson.Ucret.ToString("N0")₺</td>
+                                        <td>
+                                            @if (lesson.Durum == "Tamamlandı")
+                                            {
+                                                <span class="badge bg-success">@lesson.Durum</span>
+                                            }
+                                            else if (lesson.Durum == "Planlı")
+                                            {
+                                                <span class="badge bg-primary">@lesson.Durum</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">@lesson.Durum</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (lesson.OdemeAlindi)
+                                            {
+                                                <span class="badge bg-success">✓</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">Bekliyor</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (Model.Lessons.Count > 10)
+                    {
+                        <div class="text-center mt-3">
+                            <a asp-controller="Lessons" asp-action="Index" asp-route-studentId="@Model.Id" class="btn btn-sm btn-outline-primary">
+                                Tüm Dersleri Gör (@Model.Lessons.Count)
+                            </a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">Henüz ders kaydı yok.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-warning d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Ödemeler</h5>
+                <a asp-controller="Payments" asp-action="Create" asp-route-studentId="@Model.Id" class="btn btn-light btn-sm">
+                    Yeni Ödeme Ekle
+                </a>
+            </div>
+            <div class="card-body">
+                @if (Model.Payments != null && Model.Payments.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Tutar</th>
+                                    <th>Dönem</th>
+                                    <th>Açıklama</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.Payments.Take(10))
+                                {
+                                    <tr>
+                                        <td>@payment.Tarih.ToString("dd.MM.yyyy")</td>
+                                        <td class="fw-bold text-success">@payment.Tutar.ToString("N0")₺</td>
+                                        <td>
+                                            <span class="badge bg-info">@payment.Donem</span>
+                                        </td>
+                                        <td>@(payment.Aciklama ?? "-")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (Model.Payments.Count > 10)
+                    {
+                        <div class="text-center mt-3">
+                            <a asp-controller="Payments" asp-action="Index" asp-route-studentId="@Model.Id" class="btn btn-sm btn-outline-primary">
+                                Tüm Ödemeleri Gör (@Model.Payments.Count)
+                            </a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">Henüz ödeme kaydı yok.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

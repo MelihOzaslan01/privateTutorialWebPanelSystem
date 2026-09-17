@@ -1,0 +1,23 @@
+@model Income
+
+@{
+    ViewData["Title"] = "Gelir Ekle";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold">Gelir Ekle</h1>
+        <form asp-action="CreateIncome" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <partial name="_IncomeFormFields" model="Model" />
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">Kaydet</button>
+                <a asp-action="Incomes" class="btn btn-light">Vazgec</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,160 @@
+@{
+    ViewData["Title"] = "Finans Dashboard";
+}
+
+<div class="dashboard-header finance mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="display-5 fw-bold mb-1">Finans Dashboard</h1>
+            <p class="mb-0">Kişisel Borç ve Finans Yönetim Sistemi</p>
+        </div>
+        <div class="text-end">
+            <small class="d-block">@DateTime.Now.ToString("dddd")</small>
+            <strong>@DateTime.Now.ToString("dd MMMM yyyy")</strong>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success-light text-success rounded-circle me-3"><i class="bi bi-bar-chart-fill fs-4"></i></div>
+                    <div><h6 class="text-muted mb-1">Bu Ay Gelir</h6><h3 class="fw-bold text-success mb-0">@ViewBag.MonthlyIncomeTotal.ToString("N0")₺</h3></div>
+                </div>
+                <div class="mt-3 pt-2 border-top"><small class="text-muted">@ViewBag.MonthlyIncomeCount işlem</small></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-danger-light text-danger rounded-circle me-3"><i class="bi bi-plus-circle fs-4"></i></div>
+                    <div><h6 class="text-muted mb-1">Bu Ay Gider</h6><h3 class="fw-bold text-danger mb-0">@ViewBag.MonthlyExpenseTotal.ToString("N0")₺</h3></div>
+                </div>
+                <div class="mt-3 pt-2 border-top"><small class="text-muted">@ViewBag.MonthlyExpenseCount işlem</small></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning-light text-warning rounded-circle me-3"><i class="bi bi-credit-card fs-4"></i></div>
+                    <div><h6 class="text-muted mb-1">Toplam Borç</h6><h3 class="fw-bold text-warning mb-0">@ViewBag.TotalDebt.ToString("N0")₺</h3></div>
+                </div>
+                <div class="mt-3 pt-2 border-top"><small class="text-muted">@ViewBag.ActiveDebtCount aktif borç</small></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-info-light text-info rounded-circle me-3"><i class="bi bi-graph-up-arrow fs-4"></i></div>
+                    <div><h6 class="text-muted mb-1">Yatırımlar</h6><h3 class="fw-bold text-info mb-0">@ViewBag.TotalInvestmentValue.ToString("N0")₺</h3></div>
+                </div>
+                <div class="mt-3 pt-2 border-top">
+                    <small class="@(ViewBag.TotalInvestmentProfit >= 0 ? "text-success" : "text-danger")">@((ViewBag.TotalInvestmentProfit >= 0 ? "+" : ""))@ViewBag.TotalInvestmentProfit.ToString("N0")₺ kar</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="panel-card card h-100">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Bu Ay Net Durum</h5>
+                <div class="display-4 fw-bold @(ViewBag.NetBalance >= 0 ? "text-success" : "text-danger")">@((ViewBag.NetBalance >= 0 ? "+" : ""))@ViewBag.NetBalance.ToString("N0")₺</div>
+                <p class="text-muted mt-3">Gelir - Gider - Borç Ödemesi</p>
+                <div class="d-flex justify-content-center gap-4 mt-4">
+                    <div><div class="text-muted small">Gelir</div><div class="fw-bold text-success">@ViewBag.MonthlyIncomeTotal.ToString("N0")₺</div></div>
+                    <div><div class="text-muted small">Gider</div><div class="fw-bold text-danger">@ViewBag.MonthlyExpenseTotal.ToString("N0")₺</div></div>
+                    <div><div class="text-muted small">Borç</div><div class="fw-bold text-warning">@ViewBag.MonthlyDebtPayment.ToString("N0")₺</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel-card card h-100">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-3"><i class="bi bi-exclamation-circle me-2"></i>Gider Oranı Uyarısı</h5>
+                <div class="display-4 fw-bold @(ViewBag.ExpenseRatio >= 80 ? "text-danger" : (ViewBag.ExpenseRatio >= 60 ? "text-warning" : "text-success"))">%@ViewBag.ExpenseRatio</div>
+                <p class="text-muted mt-3">Gelir içinde gider oranı</p>
+                <div class="progress mt-4" style="height:20px;"><div class="progress-bar @(ViewBag.ExpenseRatio >= 80 ? "bg-danger" : (ViewBag.ExpenseRatio >= 60 ? "bg-warning" : "bg-success"))" style="width:@Math.Min((int)ViewBag.ExpenseRatio, 100)%"></div></div>
+                @if (ViewBag.ExpenseRatio >= 80)
+                {
+                    <div class="alert alert-danger mt-3 mb-0"><strong>Dikkat!</strong> Gider oranınız %80'i geçti. Harcamalarınızı gözden geçirmeniz önerilir.</div>
+                }
+                else if (ViewBag.ExpenseRatio >= 60)
+                {
+                    <div class="alert alert-warning mt-3 mb-0"><strong>Uyarı:</strong> Gider oranınız %60'ı geçti. Bütçenizi kontrol edin.</div>
+                }
+                else
+                {
+                    <div class="alert alert-success mt-3 mb-0"><strong>Harika!</strong> Gider oranınız kontrol altında.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="panel-card card">
+            <div class="card-header bg-white border-0 py-3"><h5 class="fw-bold mb-0"><i class="bi bi-graph-up me-2"></i>Gelir-Gider Trendi (Son 6 Ay)</h5></div>
+            <div class="card-body"><canvas id="incomeExpenseChart" style="height:300px"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel-card card">
+            <div class="card-header bg-white border-0 py-3"><h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2"></i>Gider Dağılımı</h5></div>
+            <div class="card-body"><canvas id="expenseCategoryChart" style="height:300px"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="panel-card card">
+            <div class="card-body p-4">
+                <h5 class="mb-4 fw-bold">Hızlı İşlemler</h5>
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6"><a class="btn btn-outline-success w-100 py-3" asp-action="CreateIncome"><i class="bi bi-plus-lg d-block mb-2"></i><strong>Gelir Ekle</strong></a></div>
+                    <div class="col-md-3 col-sm-6"><a class="btn btn-outline-danger w-100 py-3" asp-action="CreateExpense"><i class="bi bi-plus-lg d-block mb-2"></i><strong>Gider Ekle</strong></a></div>
+                    <div class="col-md-3 col-sm-6"><a class="btn btn-outline-warning w-100 py-3" asp-action="CreateDebt"><i class="bi bi-plus-lg d-block mb-2"></i><strong>Borç Ekle</strong></a></div>
+                    <div class="col-md-3 col-sm-6"><a class="btn btn-outline-info w-100 py-3" asp-action="CreateInvestment"><i class="bi bi-plus-lg d-block mb-2"></i><strong>Yatırım Ekle</strong></a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        new Chart(document.getElementById('incomeExpenseChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(ViewBag.MonthLabels ?? "[]"),
+                datasets: [
+                    { label: 'Gelir', data: @Html.Raw(ViewBag.IncomeData ?? "[]"), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.1)', borderWidth: 3, fill: true, tension: .4 },
+                    { label: 'Gider', data: @Html.Raw(ViewBag.ExpenseData ?? "[]"), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.1)', borderWidth: 3, fill: true, tension: .4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: value => value.toLocaleString('tr-TR') + '₺' } } } }
+        });
+
+        new Chart(document.getElementById('expenseCategoryChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(ViewBag.ExpenseCategoryLabels ?? "[]"),
+                datasets: [{ data: @Html.Raw(ViewBag.ExpenseCategoryData ?? "[]"), backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#a855f7', '#ec4899'], borderWidth: 2 }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    </script>
+}

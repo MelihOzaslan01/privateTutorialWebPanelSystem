@@ -1,0 +1,126 @@
+@model PrivateTutorTracker.Models.Payment
+
+@{
+    ViewData["Title"] = "Ödeme Detayı";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">← Geri</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Düzenle</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Ödeme Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Öğrenci:</dt>
+                    <dd class="col-sm-9">
+                        <a asp-controller="Students" asp-action="Details" asp-route-id="@Model.Student.Id" class="h5">
+                            @Model.Student.AdSoyad
+                        </a>
+                    </dd>
+
+                    <dt class="col-sm-3">Ödeme Tarihi:</dt>
+                    <dd class="col-sm-9">
+                        <strong>@Model.Tarih.ToString("dddd, dd MMMM yyyy")</strong>
+                    </dd>
+
+                    <dt class="col-sm-3">Tutar:</dt>
+                    <dd class="col-sm-9">
+                        <h3 class="text-success mb-0">@Model.Tutar.ToString("N0")₺</h3>
+                    </dd>
+
+                    <dt class="col-sm-3">Dönem:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info fs-6">@Model.Donem</span>
+                    </dd>
+
+                    <dt class="col-sm-3">Durum:</dt>
+                    <dd class="col-sm-9">
+                        @switch (Model.Durum)
+                        {
+                            case PrivateTutorTracker.Models.PaymentStatus.Beklemede:
+                                <span class="badge bg-warning text-dark fs-6">⏳ Beklemede</span>
+                                break;
+                            case PrivateTutorTracker.Models.PaymentStatus.Tamamlandi:
+                                <span class="badge bg-success fs-6">✅ Tamamlandı</span>
+                                break;
+                            case PrivateTutorTracker.Models.PaymentStatus.Gecikti:
+                                <span class="badge bg-danger fs-6">⚠️ Gecikti</span>
+                                break;
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Açıklama:</dt>
+                    <dd class="col-sm-9">
+                        @if (!string.IsNullOrEmpty(Model.Aciklama))
+                        {
+                            <div class="alert alert-light mb-0">
+                                @Model.Aciklama
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Açıklama girilmemiş</span>
+                        }
+                    </dd>
+                </dl>
+
+                <hr />
+                <div class="row">
+                    <div class="col-sm-6">
+                        <small class="text-muted">
+                            Oluşturulma: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </small>
+                    </div>
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <div class="col-sm-6 text-end">
+                            <small class="text-muted">
+                                Son Güncelleme: @Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Öğrenci Bilgileri</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Email:</strong></p>
+                <p>@(Model.Student.Email ?? "Belirtilmemiş")</p>
+
+                <p class="mb-1"><strong>Telefon:</strong></p>
+                <p>@(Model.Student.Telefon ?? "Belirtilmemiş")</p>
+
+                <a asp-controller="Students" asp-action="Details" asp-route-id="@Model.Student.Id"
+                   class="btn btn-outline-primary w-100 mt-2">
+                    Öğrenci Detayına Git
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-warning">
+                <h6 class="mb-0">İşlemler</h6>
+            </div>
+            <div class="card-body">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning w-100 mb-2">
+                    Düzenle
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger w-100">
+                    Sil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

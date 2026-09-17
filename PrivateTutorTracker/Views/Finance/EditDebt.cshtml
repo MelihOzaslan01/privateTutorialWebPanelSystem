@@ -1,0 +1,25 @@
+@model Debt
+
+@{
+    ViewData["Title"] = "Borc Duzenle";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold">Borc Duzenle</h1>
+        <form asp-action="EditDebt" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="UserId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <partial name="_DebtFormFields" model="Model" />
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-warning">Guncelle</button>
+                <a asp-action="Debts" class="btn btn-light">Vazgec</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

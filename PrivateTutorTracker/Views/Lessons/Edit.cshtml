@@ -1,0 +1,300 @@
+@model PrivateTutorTracker.Models.Lesson
+
+@{
+    ViewData["Title"] = "Ders Düzenle";
+}
+
+<style>
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: none;
+    }
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border: none;
+    }
+    .form-header h3 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .form-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.95;
+        font-size: 0.95rem;
+    }
+    .form-body {
+        padding: 2.5rem;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .input-group-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        border-radius: 0 12px 12px 0;
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+    }
+    .input-group .form-control {
+        border-radius: 12px 0 0 12px;
+    }
+    .form-section {
+        background: #f7f5ff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 2px solid #e9d5ff;
+    }
+    .form-section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #764ba2;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    .btn-secondary {
+        background: white;
+        color: #764ba2;
+        border: 2px solid #e2e8f0;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+        background: #f7fafc;
+        border-color: #667eea;
+        color: #764ba2;
+        transform: translateY(-2px);
+    }
+    .text-muted {
+        color: #64748b !important;
+        font-size: 0.875rem;
+    }
+    .required-star {
+        color: #ef4444;
+        font-weight: 700;
+    }
+    .alert-danger {
+        background: #fee;
+        border: 2px solid #fca5a5;
+        border-radius: 12px;
+        padding: 1.25rem;
+    }
+    .form-check {
+        background: #f0fdf4;
+        border: 2px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-check-input:checked {
+        background-color: #10b981;
+        border-color: #10b981;
+    }
+    .form-check-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-left: 0.5rem;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card form-card">
+            <div class="card-header form-header">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-pencil-square me-2" viewBox="0 0 16 16" style="vertical-align: middle;">
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                    </svg>
+                    Ders Bilgilerini Düzenle
+                </h3>
+                <p>Ders detaylarını güncelleyin</p>
+            </div>
+            <div class="card-body form-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+
+                    <!-- Öğrenci Seçimi -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                            </svg>
+                            Öğrenci Bilgisi
+                        </div>
+                        <div class="mb-0">
+                            <label asp-for="StudentId" class="form-label">Öğrenci <span class="required-star">*</span></label>
+                            <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
+                                <option value="">Bir öğrenci seçin...</option>
+                            </select>
+                            <span asp-validation-for="StudentId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Tarih ve Zaman -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                                <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+                                <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
+                                <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                            Tarih ve Zaman
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Baslangic" class="form-label">Başlangıç Zamanı <span class="required-star">*</span></label>
+                                <input asp-for="Baslangic" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="Baslangic" class="text-danger"></span>
+                                <small class="text-muted">Dersin başlangıç tarihi ve saati</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Bitis" class="form-label">Bitiş Zamanı <span class="required-star">*</span></label>
+                                <input asp-for="Bitis" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="Bitis" class="text-danger"></span>
+                                <small class="text-muted">Dersin bitiş tarihi ve saati</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ders Detayları -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+                                <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                            </svg>
+                            Ders Detayları
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Ders Türü</label>
+                            <div class="alert alert-info mb-0" style="background: linear-gradient(135deg, rgba(13, 202, 240, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%); border: 2px solid #0dcaf0; border-radius: 12px;">
+                                <div class="d-flex align-items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-camera-video-fill me-3" viewBox="0 0 16 16" style="color: #0dcaf0;">
+                                        <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+                                    </svg>
+                                    <div>
+                                        <strong style="color: #0dcaf0; font-size: 1.1rem;">Online Ders</strong>
+                                        <p class="mb-0 mt-1" style="color: #495057;">Tüm dersler online olarak gerçekleştirilmektedir.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="Tur" value="0" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Konu" class="form-label">Ders Konusu <span class="required-star">*</span></label>
+                            <input asp-for="Konu" class="form-control" placeholder="Örn: Matematik - İntegral" />
+                            <span asp-validation-for="Konu" class="text-danger"></span>
+                            <small class="text-muted">İşlenecek ders konusu</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Ucret" class="form-label">Ücret <span class="required-star">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="Ucret" class="form-control" type="number" step="0.01" placeholder="500.00" />
+                                    <span class="input-group-text">₺</span>
+                                </div>
+                                <span asp-validation-for="Ucret" class="text-danger"></span>
+                                <small class="text-muted">Ders ücreti</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Durum" class="form-label">Ders Durumu <span class="required-star">*</span></label>
+                                <select asp-for="Durum" class="form-select">
+                                    <option value="Planlı">📅 Planlı</option>
+                                    <option value="Tamamlandı">✅ Tamamlandı</option>
+                                    <option value="İptal">❌ İptal</option>
+                                </select>
+                                <span asp-validation-for="Durum" class="text-danger"></span>
+                                <small class="text-muted">Dersin mevcut durumu</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="Not" class="form-label">Notlar</label>
+                            <textarea asp-for="Not" class="form-control" rows="4"
+                                      placeholder="Ders hakkında notlar, hatırlatıcılar..."></textarea>
+                            <span asp-validation-for="Not" class="text-danger"></span>
+                            <small class="text-muted">İsteğe bağlı: Ders hakkında özel notlar</small>
+                        </div>
+                    </div>
+
+                    <!-- Ödeme Durumu -->
+                    <div class="form-check">
+                        <input asp-for="OdemeAlindi" class="form-check-input" type="checkbox" />
+                        <label asp-for="OdemeAlindi" class="form-check-label">
+                            Ödeme Alındı
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                            İptal
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle me-1" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                            Değişiklikleri Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

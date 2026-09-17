@@ -1,0 +1,46 @@
+@model PrivateTutorTracker.Models.LessonTemplate
+
+@{
+    ViewData["Title"] = "Şablonu Sil";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Şablonu Sil</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-danger"><strong>Bu şablonu silmek istediğinizden emin misiniz?</strong></p>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Şablon Adı</dt>
+                        <dd class="col-sm-8">@Model.Ad</dd>
+
+                        <dt class="col-sm-4">Konu</dt>
+                        <dd class="col-sm-8">@Model.Konu</dd>
+
+                        <dt class="col-sm-4">Varsayılan Süre</dt>
+                        <dd class="col-sm-8">@Model.VarsayilanSure dk</dd>
+
+                        <dt class="col-sm-4">Varsayılan Ücret</dt>
+                        <dd class="col-sm-8">@Model.VarsayilanUcret.ToString("C2")</dd>
+                    </dl>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>İptal
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Sil
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

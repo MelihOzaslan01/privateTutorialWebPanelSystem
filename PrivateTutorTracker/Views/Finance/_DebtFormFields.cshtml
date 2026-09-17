@@ -1,0 +1,75 @@
+@model Debt
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Ad" class="form-label">Ad</label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="KurumKisi" class="form-label">Kurum/Kisi</label>
+        <input asp-for="KurumKisi" class="form-control" />
+        <span asp-validation-for="KurumKisi" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ToplamTutar" class="form-label">Toplam Tutar</label>
+        <input asp-for="ToplamTutar" class="form-control" />
+        <span asp-validation-for="ToplamTutar" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="KalanTutar" class="form-label">Kalan Tutar</label>
+        <input asp-for="KalanTutar" class="form-control" />
+        <span asp-validation-for="KalanTutar" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="AylikTaksit" class="form-label">Aylik Taksit</label>
+        <input asp-for="AylikTaksit" class="form-control" />
+        <span asp-validation-for="AylikTaksit" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="FaizOrani" class="form-label">Faiz Orani</label>
+        <input asp-for="FaizOrani" class="form-control" />
+        <span asp-validation-for="FaizOrani" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ToplamTaksitSayisi" class="form-label">Toplam Taksit</label>
+        <input asp-for="ToplamTaksitSayisi" class="form-control" />
+        <span asp-validation-for="ToplamTaksitSayisi" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="KalanTaksitSayisi" class="form-label">Kalan Taksit</label>
+        <input asp-for="KalanTaksitSayisi" class="form-control" />
+        <span asp-validation-for="KalanTaksitSayisi" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="BaslangicTarihi" class="form-label">Baslangic</label>
+        <input asp-for="BaslangicTarihi" class="form-control" type="date" />
+        <span asp-validation-for="BaslangicTarihi" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SonOdemeTarihi" class="form-label">Son Odeme</label>
+        <input asp-for="SonOdemeTarihi" class="form-control" type="date" />
+        <span asp-validation-for="SonOdemeTarihi" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SonrakiOdemeTarihi" class="form-label">Sonraki Odeme</label>
+        <input asp-for="SonrakiOdemeTarihi" class="form-control" type="date" />
+        <span asp-validation-for="SonrakiOdemeTarihi" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="BorcTipi" class="form-label">Borc Tipi</label>
+        <input asp-for="BorcTipi" class="form-control" />
+        <span asp-validation-for="BorcTipi" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input asp-for="AktifMi" class="form-check-input" />
+            <label asp-for="AktifMi" class="form-check-label">Aktif</label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Aciklama" class="form-label">Aciklama</label>
+        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+</div>

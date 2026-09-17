@@ -1,0 +1,84 @@
+@model Lesson
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="StudentId" class="form-label">Ogrenci</label>
+        <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
+            <option value="">Ogrenci secin</option>
+        </select>
+        <span asp-validation-for="StudentId" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Baslangic" class="form-label">Baslangic</label>
+        <input asp-for="Baslangic" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Baslangic" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Bitis" class="form-label">Bitis</label>
+        <input asp-for="Bitis" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Bitis" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Konu" class="form-label">Konu</label>
+        <input asp-for="Konu" class="form-control" />
+        <span asp-validation-for="Konu" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Ucret" class="form-label">Ucret</label>
+        <input asp-for="Ucret" class="form-control" />
+        <span asp-validation-for="Ucret" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Durum" class="form-label">Durum</label>
+        <select asp-for="Durum" class="form-select">
+            <option>Planli</option>
+            <option>Tamamlandi</option>
+            <option>Iptal</option>
+        </select>
+        <span asp-validation-for="Durum" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Tur" class="form-label">Ders Turu</label>
+        <select asp-for="Tur" class="form-select" asp-items="Html.GetEnumSelectList<LessonType>()"></select>
+        <span asp-validation-for="Tur" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input asp-for="OdemeAlindi" class="form-check-input" />
+            <label asp-for="OdemeAlindi" class="form-check-label">Odeme alindi</label>
+        </div>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input name="TekrarliMi" class="form-check-input" type="checkbox" value="true" />
+            <label class="form-check-label">Tekrarli ders</label>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Tekrar Periyodu</label>
+        <select name="TekrarPeriyodu" class="form-select">
+            <option value="">Yok</option>
+            <option>Haftalik</option>
+            <option>IkiHaftadaBir</option>
+            <option>Aylik</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Ders Sayisi</label>
+        <input name="DersSayisi" class="form-control" type="number" min="1" value="1" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Tekrar Sayisi</label>
+        <input name="TekrarSayisi" class="form-control" type="number" min="1" value="1" />
+    </div>
+    <div class="col-12">
+        <label asp-for="Not" class="form-label">Not</label>
+        <textarea asp-for="Not" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Not" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="DersNotu" class="form-label">Ders Notu</label>
+        <textarea asp-for="DersNotu" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="DersNotu" class="text-danger"></span>
+    </div>
+</div>

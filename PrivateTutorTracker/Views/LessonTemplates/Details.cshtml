@@ -1,0 +1,23 @@
+@model LessonTemplate
+
+@{
+    ViewData["Title"] = "Sablon Detayi";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold">@Model.Ad</h1>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Konu</dt>
+            <dd class="col-sm-9">@Model.Konu</dd>
+            <dt class="col-sm-3">Sure</dt>
+            <dd class="col-sm-9">@Model.VarsayilanSure dk</dd>
+            <dt class="col-sm-3">Ucret</dt>
+            <dd class="col-sm-9">@Model.VarsayilanUcret.ToString("N2") TL</dd>
+            <dt class="col-sm-3">Durum</dt>
+            <dd class="col-sm-9">@(Model.AktifMi ? "Aktif" : "Pasif")</dd>
+            <dt class="col-sm-3">Not</dt>
+            <dd class="col-sm-9">@Model.VarsayilanNot</dd>
+        </dl>
+    </div>
+</div>

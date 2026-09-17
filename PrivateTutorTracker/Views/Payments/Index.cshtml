@@ -1,0 +1,623 @@
+@model IEnumerable<PrivateTutorTracker.Models.Payment>
+
+@{
+    ViewData["Title"] = "Ödemeler";
+    var completedPayments = Model?.Where(p => p.Durum == PrivateTutorTracker.Models.PaymentStatus.Tamamlandi).Sum(p => p.Tutar) ?? 0;
+    var pendingPayments = Model?.Where(p => p.Durum == PrivateTutorTracker.Models.PaymentStatus.Beklemede).Sum(p => p.Tutar) ?? 0;
+    var overduePayments = Model?.Where(p => p.Durum == PrivateTutorTracker.Models.PaymentStatus.Gecikti).Sum(p => p.Tutar) ?? 0;
+    var paymentCount = Model?.Count() ?? 0;
+    var selectedStudentIds = ViewBag.SelectedStudentIds as int[] ?? Array.Empty<int>();
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+    .page-header h2 {
+        font-weight: 700;
+        font-size: 2rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .page-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.95;
+        font-size: 1rem;
+    }
+    .stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 2px solid #f0f0f0;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    .stats-card-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+    .stats-card-title {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    .stats-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+    }
+    .stats-card-subtitle {
+        font-size: 0.875rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+    }
+    .filter-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 2px solid #f0f0f0;
+        margin-bottom: 2rem;
+    }
+    .filter-card .form-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    .filter-card .form-control, .filter-card .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.625rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .filter-card .form-control:focus, .filter-card .form-select:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    .payment-table {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 2px solid #f0f0f0;
+    }
+    .payment-table .table {
+        margin-bottom: 0;
+    }
+    .payment-table thead {
+        background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
+    }
+    .payment-table thead th {
+        font-weight: 700;
+        color: #059669;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1rem;
+        border: none;
+    }
+    .payment-table tbody td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .payment-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    .payment-table tbody tr:hover {
+        background: #f9fafb;
+        transform: scale(1.01);
+    }
+    .payment-table tfoot {
+        background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);
+        font-weight: 700;
+    }
+    .payment-table tfoot td {
+        padding: 1.25rem 1rem;
+        border: none;
+    }
+    .payment-amount {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #059669;
+    }
+    .student-link {
+        color: #1f2937;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+    .student-link:hover {
+        color: #10b981;
+    }
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        border: 2px solid;
+    }
+    .btn-action:hover {
+        transform: translateY(-2px);
+    }
+    .btn-new-payment {
+        background: white;
+        color: #10b981;
+        border: 2px solid white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    }
+    .btn-new-payment:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+    }
+    .btn-filter {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border: none;
+        color: white;
+        padding: 0.625rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 2px dashed #e5e7eb;
+    }
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    .empty-state h4 {
+        color: #6b7280;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .empty-state p {
+        color: #9ca3af;
+        margin-bottom: 0;
+    }
+    .bulk-action-bar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    .bulk-action-bar.show {
+        display: flex;
+    }
+    .bulk-action-info {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    .bulk-action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .btn-bulk {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-bulk:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .payment-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #10b981;
+    }
+</style>
+
+<script>
+    let selectedPayments = new Set();
+
+    function toggleSelectAll(checkbox) {
+        const checkboxes = document.querySelectorAll('.payment-checkbox:not(#selectAll)');
+        checkboxes.forEach(cb => {
+            cb.checked = checkbox.checked;
+            if (checkbox.checked) {
+                selectedPayments.add(cb.value);
+            } else {
+                selectedPayments.delete(cb.value);
+            }
+        });
+        updateBulkActionBar();
+    }
+
+    function togglePaymentSelection(checkbox) {
+        if (checkbox.checked) {
+            selectedPayments.add(checkbox.value);
+        } else {
+            selectedPayments.delete(checkbox.value);
+            document.getElementById('selectAll').checked = false;
+        }
+        updateBulkActionBar();
+    }
+
+    function updateBulkActionBar() {
+        const bulkBar = document.getElementById('bulkActionBar');
+        const selectedCount = document.getElementById('selectedCount');
+
+        if (selectedPayments.size > 0) {
+            bulkBar.classList.add('show');
+            selectedCount.textContent = selectedPayments.size;
+        } else {
+            bulkBar.classList.remove('show');
+        }
+    }
+
+    function markSelectedAsPaid() {
+        if (selectedPayments.size === 0) {
+            alert('Lütfen en az bir ödeme seçiniz.');
+            return;
+        }
+
+        if (confirm(`${selectedPayments.size} ödemeyi tamamlandı olarak işaretlemek istediğinize emin misiniz?`)) {
+            document.getElementById('selectedIdsInput').value = Array.from(selectedPayments).join(',');
+            document.getElementById('bulkPaymentForm').submit();
+        }
+    }
+
+    function clearSelection() {
+        selectedPayments.clear();
+        document.querySelectorAll('.payment-checkbox:not(#selectAll)').forEach(cb => cb.checked = false);
+        document.getElementById('selectAll').checked = false;
+        updateBulkActionBar();
+    }
+
+    // Auto-submit filter form when inputs change
+    let filterTimeout;
+    function autoSubmitFilter() {
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 300); // 300ms debounce
+    }
+
+    // Initialize auto-filter on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input[type="date"]');
+        filterInputs.forEach(input => {
+            input.addEventListener('change', autoSubmitFilter);
+        });
+    });
+</script>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
+                    <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
+                </svg>
+                Ödeme Yönetimi
+            </h2>
+            <p>Tüm ödeme kayıtlarınızı görüntüleyin ve yönetin</p>
+        </div>
+        <a asp-action="Create" class="btn btn-new-payment">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle me-2" viewBox="0 0 16 16" style="vertical-align: middle;">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            Yeni Ödeme Ekle
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-card-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                💰
+            </div>
+            <div class="stats-card-title">Toplam Ödeme</div>
+            <div class="stats-card-value" style="color: #10b981;">@ViewBag.TotalAmount.ToString("N0")₺</div>
+            <div class="stats-card-subtitle">@paymentCount adet kayıt</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-card-icon" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white;">
+                ✅
+            </div>
+            <div class="stats-card-title">Tamamlandı</div>
+            <div class="stats-card-value" style="color: #22c55e;">@completedPayments.ToString("N0")₺</div>
+            <div class="stats-card-subtitle">@(Model?.Count(p => p.Durum == PrivateTutorTracker.Models.PaymentStatus.Tamamlandi) ?? 0) ödeme</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                ⏳
+            </div>
+            <div class="stats-card-title">Beklemede</div>
+            <div class="stats-card-value" style="color: #f59e0b;">@pendingPayments.ToString("N0")₺</div>
+            <div class="stats-card-subtitle">@(Model?.Count(p => p.Durum == PrivateTutorTracker.Models.PaymentStatus.Beklemede) ?? 0) ödeme</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
+                ⚠️
+            </div>
+            <div class="stats-card-title">Gecikmiş</div>
+            <div class="stats-card-value" style="color: #ef4444;">@overduePayments.ToString("N0")₺</div>
+            <div class="stats-card-subtitle">@(Model?.Count(p => p.Durum == PrivateTutorTracker.Models.PaymentStatus.Gecikti) ?? 0) ödeme</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Card -->
+<div class="filter-card">
+    <form id="filterForm" method="get" class="row g-3">
+        <div class="col-lg-4 col-md-6">
+            <label class="form-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                </svg>
+                Öğrenci Seçin
+            </label>
+            <select name="studentIds" class="form-select">
+                <option value="">Tüm Öğrenciler</option>
+                @if (ViewBag.Students != null)
+                {
+                    @foreach (var student in ViewBag.Students)
+                    {
+                        <option value="@student.Id" selected="@(selectedStudentIds.Contains((int)student.Id))">
+                            @student.AdSoyad
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <label class="form-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-calendar-event me-1" viewBox="0 0 16 16">
+                    <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+                Başlangıç Tarihi
+            </label>
+            <input type="date" name="startDate" class="form-control" value="@ViewBag.CurrentStartDate?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <label class="form-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-calendar-check me-1" viewBox="0 0 16 16">
+                    <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+                Bitiş Tarihi
+            </label>
+            <input type="date" name="endDate" class="form-control" value="@ViewBag.CurrentEndDate?.ToString("yyyy-MM-dd")" />
+        </div>
+    </form>
+    <div class="mt-2">
+        <small class="text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle me-1" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+            </svg>
+            Filtreler otomatik olarak uygulanır
+        </small>
+    </div>
+</div>
+
+<!-- Bulk Action Bar (Hidden by default, shown when items are selected) -->
+<div id="bulkActionBar" class="bulk-action-bar">
+    <div class="bulk-action-info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-circle-fill me-2" viewBox="0 0 16 16" style="vertical-align: middle;">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+        <span id="selectedCount">0</span> ödeme seçildi
+    </div>
+    <div class="bulk-action-buttons">
+        <button type="button" class="btn-bulk" onclick="markSelectedAsPaid()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all me-1" viewBox="0 0 16 16">
+                <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
+                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
+            </svg>
+            Tamamlandı Olarak İşaretle
+        </button>
+        <button type="button" class="btn-bulk" style="background: #f3f4f6; color: #6b7280;" onclick="clearSelection()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg me-1" viewBox="0 0 16 16">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+            </svg>
+            Seçimi Temizle
+        </button>
+    </div>
+</div>
+
+<!-- Hidden form for bulk actions -->
+<form id="bulkPaymentForm" asp-action="MarkAsPaid" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="selectedIdsInput" name="selectedIds" />
+</form>
+
+<!-- Payment Table -->
+@if (Model != null && Model.Any())
+{
+    <div class="payment-table">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">
+                            <input type="checkbox" id="selectAll" class="payment-checkbox" onchange="toggleSelectAll(this)" title="Tümünü seç/kaldır" />
+                        </th>
+                        <th>Tarih</th>
+                        <th>Öğrenci</th>
+                        <th>Tutar</th>
+                        <th>Dönem</th>
+                        <th>Durum</th>
+                        <th>Açıklama</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="payment-checkbox" value="@payment.Id" onchange="togglePaymentSelection(this)" />
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #374151;">@payment.Tarih.ToString("dd MMM yyyy")</div>
+                                <small style="color: #9ca3af;">@payment.Tarih.ToString("dddd")</small>
+                            </td>
+                            <td>
+                                <a asp-controller="Students" asp-action="Details" asp-route-id="@payment.Student.Id" class="student-link">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
+                                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                                    </svg>
+                                    @payment.Student.AdSoyad
+                                </a>
+                            </td>
+                            <td>
+                                <span class="payment-amount">@payment.Tutar.ToString("N0")₺</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">@payment.Donem</span>
+                            </td>
+                            <td>
+                                @switch (payment.Durum)
+                                {
+                                    case PrivateTutorTracker.Models.PaymentStatus.Beklemede:
+                                        <span class="badge bg-warning text-dark">⏳ Beklemede</span>
+                                        break;
+                                    case PrivateTutorTracker.Models.PaymentStatus.Tamamlandi:
+                                        <span class="badge bg-success">✅ Tamamlandı</span>
+                                        break;
+                                    case PrivateTutorTracker.Models.PaymentStatus.Gecikti:
+                                        <span class="badge bg-danger">⚠️ Gecikti</span>
+                                        break;
+                                }
+                            </td>
+                            <td style="max-width: 200px;">
+                                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #6b7280;">
+                                    @(string.IsNullOrEmpty(payment.Aciklama) ? "-" : payment.Aciklama)
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Details" asp-route-id="@payment.Id" class="btn btn-outline-primary btn-action" title="Detaylar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                        </svg>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@payment.Id" class="btn btn-outline-warning btn-action" title="Düzenle">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                        </svg>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@payment.Id" method="post" class="d-inline" onsubmit="return confirm('Bu ödeme kaydını silmek istiyor musunuz?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-action" title="Sil">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                                        </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" class="text-end" style="font-size: 1rem; color: #059669;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-calculator me-2" viewBox="0 0 16 16" style="vertical-align: middle;">
+                                <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
+                                <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/>
+                            </svg>
+                            Toplam Tutar:
+                        </td>
+                        <td style="font-size: 1.5rem; font-weight: 700; color: #10b981;">
+                            @ViewBag.TotalAmount.ToString("N0")₺
+                        </td>
+                        <td colspan="4"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-inbox" viewBox="0 0 16 16">
+                <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4H4.98zm9.954 5H10.45a2.5 2.5 0 0 1-4.9 0H1.066l.32 2.562a.5.5 0 0 0 .497.438h12.234a.5.5 0 0 0 .496-.438L14.933 9zM3.809 3.563A1.5 1.5 0 0 1 4.981 3h6.038a1.5 1.5 0 0 1 1.172.563l3.7 4.625a.5.5 0 0 1 .105.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374l3.7-4.625z"/>
+            </svg>
+        </div>
+        <h4>Ödeme Kaydı Bulunamadı</h4>
+        <p>Henüz hiç ödeme kaydı eklenmemiş veya filtrelerinize uygun kayıt bulunamadı.</p>
+        <a asp-action="Create" class="btn btn-filter mt-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle me-1" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            İlk Ödemeyi Ekle
+        </a>
+    </div>
+}

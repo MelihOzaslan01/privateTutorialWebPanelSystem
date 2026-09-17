@@ -1,0 +1,26 @@
+@model DatabaseInfoViewModel
+
+@{
+    ViewData["Title"] = "Database Bilgisi";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold">Database Bilgisi</h1>
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <dl class="row">
+            <dt class="col-sm-3">Baglanti</dt>
+            <dd class="col-sm-9">@(Model.CanConnect ? "Basarili" : "Basarisiz")</dd>
+            <dt class="col-sm-3">Connection String</dt>
+            <dd class="col-sm-9"><code>@Model.ConnectionString</code></dd>
+        </dl>
+        <h2 class="h5 fw-bold">Uygulanmis Migrationlar</h2>
+        <ul>@foreach (var item in Model.AppliedMigrations) { <li>@item</li> }</ul>
+        <h2 class="h5 fw-bold">Bekleyen Migrationlar</h2>
+        <ul>@foreach (var item in Model.PendingMigrations) { <li>@item</li> }</ul>
+        <a asp-action="Migrate" class="btn btn-outline-secondary">Migration Sayfasi</a>
+    </div>
+</div>

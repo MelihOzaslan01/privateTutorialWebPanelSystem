@@ -1,0 +1,20 @@
+@{
+    ViewData["Title"] = "Aktivite Temizle";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold text-danger">Aktivite Kayitlarini Temizle</h1>
+        <p class="text-muted">Belirli bir tarihten eski kayitlari veya tum aktivite kayitlarini silebilirsiniz.</p>
+        <form asp-action="Clear" method="post" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Bu tarihten eski kayitlari sil</label>
+                <input name="olderThan" class="form-control" type="date" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-danger">Temizle</button>
+                <a asp-action="Index" class="btn btn-light">Vazgec</a>
+            </div>
+        </form>
+    </div>
+</div>

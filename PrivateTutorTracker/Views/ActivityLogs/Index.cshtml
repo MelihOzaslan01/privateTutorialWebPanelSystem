@@ -1,0 +1,229 @@
+@model IEnumerable<PrivateTutorTracker.Models.ActivityLog>
+
+@{
+    ViewData["Title"] = "Aktivite Günlüğü";
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+    var pageSize = ViewBag.PageSize ?? 50;
+    var totalCount = ViewBag.TotalCount ?? 0;
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-journal-text me-2"></i>Aktivite Günlüğü
+                </h2>
+                <div class="btn-group">
+                    <a asp-action="Statistics" class="btn btn-outline-primary">
+                        <i class="bi bi-graph-up me-1"></i>İstatistikler
+                    </a>
+                    <a asp-action="ExportCsv" asp-route-activityAction="@ViewBag.SelectedAction" asp-route-entityType="@ViewBag.SelectedEntityType" asp-route-search="@ViewBag.Search" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="btn btn-outline-success">
+                        <i class="bi bi-download me-1"></i>CSV
+                    </a>
+                    <a asp-action="Clear" class="btn btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>Temizle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-funnel me-2"></i>Filtreler
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Ara</label>
+                        <input type="search" name="search" class="form-control" value="@ViewBag.Search" placeholder="Açıklama, kullanıcı veya IP adresi" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Aksiyon</label>
+                        <select name="action" class="form-select">
+                            <option value="">Tümü</option>
+                            @foreach (var action in ViewBag.Actions as List<string>)
+                            {
+                                <option value="@action" selected="@(action == ViewBag.SelectedAction)">@action</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Varlık Türü</label>
+                        <select name="entityType" class="form-select">
+                            <option value="">Tümü</option>
+                            @foreach (var entityType in ViewBag.EntityTypes as List<string>)
+                            {
+                                <option value="@entityType" selected="@(entityType == ViewBag.SelectedEntityType)">@entityType</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-1"></i>Filtrele
+                        </button>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewBag.SelectedAction) || !string.IsNullOrEmpty(ViewBag.SelectedEntityType) || !string.IsNullOrEmpty(ViewBag.Search) || !string.IsNullOrEmpty(ViewBag.StartDate) || !string.IsNullOrEmpty(ViewBag.EndDate))
+                {
+                    <div class="mt-2">
+                        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Filtreleri Temizle
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Info -->
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Toplam <strong>@totalCount</strong> kayıt bulundu. Sayfa <strong>@currentPage</strong> / <strong>@totalPages</strong> gösteriliyor.
+    </div>
+
+    <!-- Activity Logs Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 140px;">Tarih/Saat</th>
+                            <th style="width: 150px;">Kullanıcı</th>
+                            <th style="width: 120px;">Aksiyon</th>
+                            <th style="width: 120px;">Varlık Türü</th>
+                            <th style="width: 80px;">Varlık ID</th>
+                            <th>Açıklama</th>
+                            <th style="width: 120px;">IP Adresi</th>
+                            <th style="width: 80px;">Detay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-nowrap">
+                                        <small>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@(item.User?.UserName ?? "Unknown")</span>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var badgeClass = item.Action switch
+                                            {
+                                                "Create" => "bg-success",
+                                                "Update" => "bg-warning text-dark",
+                                                "Delete" => "bg-danger",
+                                                "View" => "bg-info",
+                                                "Export" => "bg-primary",
+                                                "Login" => "bg-success",
+                                                "Logout" => "bg-secondary",
+                                                "Error" => "bg-danger",
+                                                "Clear" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@item.Action</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">@item.EntityType</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.EntityId.HasValue)
+                                        {
+                                            <span class="badge bg-dark">@item.EntityId</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small>@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@(item.IpAddress ?? "-")</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Henüz aktivite kaydı bulunmamaktadır.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <div class="card-footer">
+                <nav>
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+                        @{
+                            var routeValues = new Dictionary<string, string>();
+                            if (!string.IsNullOrEmpty(ViewBag.SelectedAction)) routeValues.Add("action", ViewBag.SelectedAction);
+                            if (!string.IsNullOrEmpty(ViewBag.SelectedEntityType)) routeValues.Add("entityType", ViewBag.SelectedEntityType);
+                            if (!string.IsNullOrEmpty(ViewBag.Search)) routeValues.Add("search", ViewBag.Search);
+                            if (!string.IsNullOrEmpty(ViewBag.StartDate)) routeValues.Add("startDate", ViewBag.StartDate);
+                            if (!string.IsNullOrEmpty(ViewBag.EndDate)) routeValues.Add("endDate", ViewBag.EndDate);
+                        }
+
+                        @if (currentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index" asp-all-route-data="@routeValues" asp-route-page="@(currentPage - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-all-route-data="@routeValues" asp-route-page="@i">@i</a>
+                            </li>
+                        }
+
+                        @if (currentPage < totalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index" asp-all-route-data="@routeValues" asp-route-page="@(currentPage + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>

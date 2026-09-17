@@ -1,0 +1,88 @@
+@model PrivateTutorTracker.Models.ViewModels.SendEmailViewModel
+
+@{
+    ViewData["Title"] = "Email Gönder";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-envelope"></i> Email Gönder
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>@Model.StudentName</strong> adlı öğrenciye email gönderiyorsunuz.
+                    </div>
+
+                    <form asp-action="SendEmail" method="post">
+                        <input type="hidden" asp-for="StudentId" />
+                        <input type="hidden" asp-for="StudentName" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="ToEmail" class="form-label"></label>
+                            <input asp-for="ToEmail" class="form-control" type="email" />
+                            <span asp-validation-for="ToEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label"></label>
+                            <input asp-for="Subject" class="form-control" placeholder="Örn: Ders programı değişikliği" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Body" class="form-label"></label>
+                            <textarea asp-for="Body" class="form-control" rows="10"
+                                      placeholder="Email mesajınızı buraya yazın..."></textarea>
+                            <span asp-validation-for="Body" class="text-danger"></span>
+                            <small class="text-muted">
+                                <i class="bi bi-lightbulb"></i>
+                                Mesajınız otomatik olarak HTML formatında gönderilecektir.
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                            <button type="submit" class="btn btn-info">
+                                <i class="bi bi-send"></i> Gönder
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.StudentId" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="bi bi-question-circle"></i> Email Şablon Önerileri:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>Ödeme Hatırlatma:</strong>
+                            <br><small class="text-muted">"Merhaba, bu ayın ders ücretini hatırlatmak istiyorum..."</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Ders İptali:</strong>
+                            <br><small class="text-muted">"[Tarih] tarihindeki dersimiz iptal edilmiştir..."</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Ders Programı Değişikliği:</strong>
+                            <br><small class="text-muted">"Ders saatimizde değişiklik yapıldı. Yeni saat..."</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,45 @@
+@model Investment
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Ad" class="form-label">Ad</label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Tip" class="form-label">Tip</label>
+        <input asp-for="Tip" class="form-control" />
+        <span asp-validation-for="Tip" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Miktar" class="form-label">Miktar</label>
+        <input asp-for="Miktar" class="form-control" />
+        <span asp-validation-for="Miktar" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="BirimFiyat" class="form-label">Birim Fiyat</label>
+        <input asp-for="BirimFiyat" class="form-control" />
+        <span asp-validation-for="BirimFiyat" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="GuncelFiyat" class="form-label">Guncel Fiyat</label>
+        <input asp-for="GuncelFiyat" class="form-control" />
+        <span asp-validation-for="GuncelFiyat" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="AlisTarihi" class="form-label">Alis Tarihi</label>
+        <input asp-for="AlisTarihi" class="form-control" type="date" />
+        <span asp-validation-for="AlisTarihi" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input asp-for="AktifMi" class="form-check-input" />
+            <label asp-for="AktifMi" class="form-check-label">Aktif</label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Aciklama" class="form-label">Aciklama</label>
+        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+</div>

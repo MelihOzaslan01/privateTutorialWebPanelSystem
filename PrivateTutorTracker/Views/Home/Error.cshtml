@@ -1,0 +1,13 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Hata";
+}
+
+<div class="metric-card">
+    <h1 class="h4">Bir hata olustu</h1>
+    <p class="text-muted">Istek islenirken beklenmeyen bir sorun yasandi.</p>
+    @if (!string.IsNullOrEmpty(Model?.RequestId))
+    {
+        <p class="mb-0"><strong>Request ID:</strong> @Model.RequestId</p>
+    }
+</div>

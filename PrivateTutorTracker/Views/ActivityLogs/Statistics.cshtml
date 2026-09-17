@@ -1,0 +1,244 @@
+@model Dictionary<string, int>
+
+@{
+    ViewData["Title"] = "Aktivite İstatistikleri";
+    var totalActivities = ViewBag.TotalActivities ?? 0;
+    var mostActiveUsers = ViewBag.MostActiveUsers as List<dynamic>;
+    var timeline = ViewBag.Timeline as List<dynamic>;
+    var entityDistribution = ViewBag.EntityDistribution as List<dynamic>;
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Aktivite İstatistikleri
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-calendar-range me-2"></i>Tarih Aralığı
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Statistics">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" required />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-1"></i>İstatistikleri Göster
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        <i class="bi bi-activity me-2"></i>Toplam Aktivite
+                    </h3>
+                    <h1 class="display-3 mb-0">@totalActivities</h1>
+                    <p class="mb-0">@ViewBag.StartDate ile @ViewBag.EndDate arasında</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Action Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Aksiyon Dağılımı</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Aksiyon</th>
+                                        <th class="text-end">Sayı</th>
+                                        <th class="text-end">Yüzde</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var stat in Model.OrderByDescending(x => x.Value))
+                                    {
+                                        var percentage = totalActivities > 0 ? (stat.Value * 100.0 / totalActivities) : 0;
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary">@stat.Key</span>
+                                            </td>
+                                            <td class="text-end"><strong>@stat.Value</strong></td>
+                                            <td class="text-end">@percentage.ToString("F1")%</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Veri bulunamadı.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Entity Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Varlık Türü Dağılımı</h5>
+                </div>
+                <div class="card-body">
+                    @if (entityDistribution != null && entityDistribution.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Varlık Türü</th>
+                                        <th class="text-end">Sayı</th>
+                                        <th class="text-end">Yüzde</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var entity in entityDistribution)
+                                    {
+                                        var percentage = totalActivities > 0 ? (entity.Count * 100.0 / totalActivities) : 0;
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-info">@entity.EntityType</span>
+                                            </td>
+                                            <td class="text-end"><strong>@entity.Count</strong></td>
+                                            <td class="text-end">@percentage.ToString("F1")%</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Veri bulunamadı.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Most Active Users -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-people me-2"></i>En Aktif Kullanıcılar</h5>
+                </div>
+                <div class="card-body">
+                    @if (mostActiveUsers != null && mostActiveUsers.Any())
+                    {
+                        <div class="row">
+                            @foreach (var user in mostActiveUsers)
+                            {
+                                var percentage = totalActivities > 0 ? (user.Count * 100.0 / totalActivities) : 0;
+                                <div class="col-md-4 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="bi bi-person-circle me-2"></i>@user.UserName
+                                            </h6>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-success">@user.Count aktivite</span>
+                                                <span class="text-muted">@percentage.ToString("F1")%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Veri bulunamadı.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Günlük Aktivite Grafiği</h5>
+                </div>
+                <div class="card-body">
+                    @if (timeline != null && timeline.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th class="text-end">Aktivite Sayısı</th>
+                                        <th style="width: 60%;">Grafik</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var maxCount = timeline.Max(t => t.Count);
+                                    }
+                                    @foreach (var day in timeline)
+                                    {
+                                        var barWidth = maxCount > 0 ? (day.Count * 100.0 / maxCount) : 0;
+                                        <tr>
+                                            <td class="text-nowrap">@day.Date.ToString("dd.MM.yyyy")</td>
+                                            <td class="text-end"><strong>@day.Count</strong></td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: @(barWidth)%">
+                                                        @if (barWidth > 15)
+                                                        {
+                                                            <span>@day.Count</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Veri bulunamadı.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

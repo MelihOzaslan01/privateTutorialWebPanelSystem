@@ -1,0 +1,21 @@
+@model IEnumerable<PrivateTutorTracker.Models.ActivityLog>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th>Tarih</th><th>Aksiyon</th><th>Varlik</th><th>Aciklama</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@item.Action</td>
+                    <td>@item.EntityType</td>
+                    <td>@item.Description</td>
+                    <td class="text-end"><a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Detay</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

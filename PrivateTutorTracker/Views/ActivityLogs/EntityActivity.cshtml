@@ -1,0 +1,15 @@
+@model IEnumerable<PrivateTutorTracker.Models.ActivityLog>
+
+@{
+    ViewData["Title"] = "Kayit Aktivitesi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Kayit Aktivitesi</h1>
+        <p class="text-muted mb-0">@ViewBag.EntityType #@ViewBag.EntityId - son @ViewBag.Count kayit</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Listeye Don</a>
+</div>
+
+<partial name="_ActivityList" model="Model" />

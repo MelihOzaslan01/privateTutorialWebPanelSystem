@@ -1,0 +1,39 @@
+@model Expense
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Ad" class="form-label">Ad</label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Tutar" class="form-label">Tutar</label>
+        <input asp-for="Tutar" class="form-control" />
+        <span asp-validation-for="Tutar" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Tarih" class="form-label">Tarih</label>
+        <input asp-for="Tarih" class="form-control" type="date" />
+        <span asp-validation-for="Tarih" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Kategori" class="form-label">Kategori</label>
+        <input asp-for="Kategori" class="form-control" />
+        <span asp-validation-for="Kategori" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="OdemeYontemi" class="form-label">Odeme Yontemi</label>
+        <select asp-for="OdemeYontemi" class="form-select">
+            <option>Nakit</option>
+            <option>Kredi Karti</option>
+            <option>Banka Karti</option>
+            <option>Havale/EFT</option>
+        </select>
+        <span asp-validation-for="OdemeYontemi" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Aciklama" class="form-label">Aciklama</label>
+        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+</div>

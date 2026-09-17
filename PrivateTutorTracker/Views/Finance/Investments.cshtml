@@ -1,0 +1,20 @@
+@model IEnumerable<PrivateTutorTracker.Models.Investment>
+@{
+    ViewData["Title"] = "Yatirimlar";
+}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div><h1 class="h3 fw-bold mb-1">Yatirimlar</h1><p class="text-muted mb-0">Yatirim portfoyu</p></div>
+    <a class="btn btn-info text-white" asp-action="CreateInvestment">Yeni yatirim</a>
+</div>
+<div class="panel-card card">
+    <div class="table-responsive"><table class="table align-middle mb-0">
+        <thead><tr><th>Ad</th><th>Tip</th><th class="text-end">Miktar</th><th class="text-end">Alis</th><th class="text-end">Guncel</th><th class="text-end">Deger</th><th class="text-end">Kar</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr><td class="fw-semibold">@item.Ad</td><td>@item.Tip</td><td class="text-end">@item.Miktar.ToString("N2")</td><td class="text-end">@item.BirimFiyat.ToString("N2")₺</td><td class="text-end">@item.GuncelFiyat.ToString("N2")₺</td><td class="text-end fw-bold">@item.ToplamDeger.ToString("N0")₺</td><td class="text-end @(item.Kar >= 0 ? "text-success" : "text-danger")">@item.Kar.ToString("N0")₺</td><td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="EditInvestment" asp-route-id="@item.Id">Duzenle</a></td></tr>
+        }
+        </tbody>
+    </table></div>
+    @if (!Model.Any()) { <div class="card-body text-muted">Yatirim kaydi bulunamadi.</div> }
+</div>

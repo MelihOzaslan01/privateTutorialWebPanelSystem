@@ -1,0 +1,40 @@
+@model Payment
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="StudentId" class="form-label">Ogrenci</label>
+        <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
+            <option value="">Ogrenci secin</option>
+        </select>
+        <span asp-validation-for="StudentId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Tarih" class="form-label">Tarih</label>
+        <input asp-for="Tarih" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Tarih" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Tutar" class="form-label">Tutar</label>
+        <input asp-for="Tutar" class="form-control" />
+        <span asp-validation-for="Tutar" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Donem" class="form-label">Donem</label>
+        <select asp-for="Donem" class="form-select">
+            <option>Haftalik</option>
+            <option>Aylik</option>
+            <option>Birikmeli</option>
+        </select>
+        <span asp-validation-for="Donem" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Durum" class="form-label">Durum</label>
+        <select asp-for="Durum" class="form-select" asp-items="Html.GetEnumSelectList<PaymentStatus>()"></select>
+        <span asp-validation-for="Durum" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Aciklama" class="form-label">Aciklama</label>
+        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+</div>

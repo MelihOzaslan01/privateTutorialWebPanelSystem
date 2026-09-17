@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Database Migration";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold">Database Migration</h1>
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success">@ViewBag.Message</div>
+        }
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <p class="text-muted">Development ortaminda bekleyen migration'lari uygulamak icin kullanilir.</p>
+        <form asp-action="ApplyMigrations" method="post">
+            <button type="submit" class="btn btn-primary">Migration Uygula</button>
+            <a asp-action="Info" class="btn btn-outline-secondary">Database Bilgisi</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+@model Income
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Ad" class="form-label">Ad</label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Tutar" class="form-label">Tutar</label>
+        <input asp-for="Tutar" class="form-control" />
+        <span asp-validation-for="Tutar" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Tarih" class="form-label">Tarih</label>
+        <input asp-for="Tarih" class="form-control" type="date" />
+        <span asp-validation-for="Tarih" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Kategori" class="form-label">Kategori</label>
+        <input asp-for="Kategori" class="form-control" />
+        <span asp-validation-for="Kategori" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Siklik" class="form-label">Siklik</label>
+        <select asp-for="Siklik" class="form-select">
+            <option>Bir Kerelik</option>
+            <option>Haftalik</option>
+            <option>Aylik</option>
+            <option>Yillik</option>
+        </select>
+        <span asp-validation-for="Siklik" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Aciklama" class="form-label">Aciklama</label>
+        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+</div>

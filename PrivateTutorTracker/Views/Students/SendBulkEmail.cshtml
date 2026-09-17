@@ -1,0 +1,93 @@
+@model PrivateTutorTracker.Models.ViewModels.SendBulkEmailViewModel
+
+@{
+    ViewData["Title"] = "Toplu Email Gönder";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-envelope-fill"></i> Toplu Email Gönder
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Dikkat!</strong> Bu email <strong>@Model.TotalStudents aktif öğrenciye</strong> gönderilecektir.
+                        <br><small>Email adresi olan tüm aktif öğrencilere aynı mesaj gönderilecek.</small>
+                    </div>
+
+                    <form asp-action="SendBulkEmail" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-people"></i> Alıcı Sayısı
+                            </label>
+                            <input type="text" class="form-control" value="@Model.TotalStudents aktif öğrenci" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label"></label>
+                            <input asp-for="Subject" class="form-control" placeholder="Örn: Önemli Duyuru" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Body" class="form-label"></label>
+                            <textarea asp-for="Body" class="form-control" rows="12"
+                                      placeholder="Tüm öğrencilere göndermek istediğiniz mesajı buraya yazın..."></textarea>
+                            <span asp-validation-for="Body" class="text-danger"></span>
+                            <small class="text-muted">
+                                <i class="bi bi-lightbulb"></i>
+                                Mesajınız otomatik olarak HTML formatında gönderilecektir.
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Not:</strong> Gmail günlük gönderim limiti 500 emaildir.
+                            Her email arasında 1 saniye bekleme süresi eklenmiştir.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('@Model.TotalStudents öğrenciye email göndermek istediğinizden emin misiniz?')">
+                                <i class="bi bi-send-fill"></i> Toplu Gönder
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="bi bi-question-circle"></i> Toplu Email Önerileri:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>Tatil Duyurusu:</strong>
+                            <br><small class="text-muted">"[Tarih] - [Tarih] arası bayram tatili nedeniyle dersler olmayacaktır..."</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Genel Bilgilendirme:</strong>
+                            <br><small class="text-muted">"Ders saatlerimizde değişiklik yapılmıştır. Yeni programınız için..."</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Başarı Kutlaması:</strong>
+                            <br><small class="text-muted">"Tüm öğrencilerime sınavlarda başarılar dilerim..."</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

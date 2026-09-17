@@ -1,0 +1,613 @@
+@model IEnumerable<PrivateTutorTracker.Models.Lesson>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Aylık Takvim";
+    var targetDate = (DateTime)ViewBag.TargetDate;
+    var firstDayOfMonth = (DateTime)ViewBag.FirstDayOfMonth;
+    var lastDayOfMonth = (DateTime)ViewBag.LastDayOfMonth;
+    var startOfCalendar = (DateTime)ViewBag.StartOfCalendar;
+    var endOfCalendar = (DateTime)ViewBag.EndOfCalendar;
+    var students = (List<PrivateTutorTracker.Models.Student>)ViewBag.Students;
+
+    var cultureInfo = new CultureInfo("tr-TR");
+}
+
+<style>
+    .monthly-calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background-color: #dee2e6;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .calendar-day {
+        background-color: white;
+        min-height: 120px;
+        padding: 0.5rem;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+
+    .calendar-day:hover {
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+
+    .calendar-day.other-month {
+        background-color: #f8f9fa;
+        opacity: 0.5;
+    }
+
+    .calendar-day.today {
+        background-color: #fff3cd;
+        border: 2px solid #ffc107;
+    }
+
+    .day-number {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+
+    .calendar-day.today .day-number {
+        color: #856404;
+    }
+
+    .lesson-item {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.4rem;
+        margin-bottom: 0.25rem;
+        border-radius: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .lesson-item:hover {
+        transform: scale(1.05);
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .lesson-item.planned {
+        background-color: #cfe2ff;
+        color: #084298;
+        border-left: 3px solid #0d6efd;
+    }
+
+    .lesson-item.completed {
+        background-color: #d1e7dd;
+        color: #0a3622;
+        border-left: 3px solid #198754;
+    }
+
+    .lesson-item.cancelled {
+        background-color: #f8d7da;
+        color: #58151c;
+        border-left: 3px solid #dc3545;
+    }
+
+    .lesson-time {
+        font-weight: 600;
+        margin-right: 0.25rem;
+    }
+
+    .lesson-item.dragging {
+        opacity: 0.5;
+        cursor: move;
+    }
+
+    .calendar-day.drag-over {
+        background-color: #e7f3ff !important;
+        border: 2px dashed #0d6efd !important;
+    }
+
+    .lesson-item[draggable="true"] {
+        cursor: move;
+    }
+
+    /* MOBİL OPTİMİZASYON - Takvim */
+    @@media (max-width: 768px) {
+        .monthly-calendar {
+            grid-template-columns: repeat(7, minmax(60px, 1fr));
+            gap: 0.5px;
+            font-size: 0.75rem;
+        }
+
+        .calendar-header {
+            padding: 0.4rem 0.2rem;
+            font-size: 0.65rem;
+            writing-mode: horizontal-tb;
+        }
+
+        .calendar-day {
+            min-height: 70px;
+            padding: 0.2rem;
+        }
+
+        .day-number {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .lesson-item {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.2rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .lesson-time {
+            display: block;
+            font-size: 0.55rem;
+        }
+
+        /* Takvim wrapper'ına horizontal scroll ekle */
+        .calendar-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .monthly-calendar {
+            min-width: 500px; /* Minimum genişlik belirle */
+        }
+    }
+
+    /* ÇOK KÜÇÜK EKRANLAR - Daha kompakt */
+    @@media (max-width: 576px) {
+        .monthly-calendar {
+            grid-template-columns: repeat(7, minmax(50px, 1fr));
+            min-width: 400px;
+        }
+
+        .calendar-header {
+            padding: 0.3rem 0.1rem;
+            font-size: 0.6rem;
+        }
+
+        .calendar-header {
+            /* Gün isimlerini kısalt */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-day {
+            min-height: 60px;
+            padding: 0.15rem;
+        }
+
+        .day-number {
+            font-size: 0.75rem;
+        }
+
+        .lesson-item {
+            font-size: 0.55rem;
+            padding: 0.1rem 0.15rem;
+        }
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+    <div class="mb-2 mb-md-0">
+        <h2 class="mb-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-calendar3 me-2" viewBox="0 0 16 16">
+                <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+                <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+            </svg>
+            @targetDate.ToString("MMMM yyyy", cultureInfo)
+        </h2>
+        <a asp-action="Calendar" class="btn btn-sm btn-outline-secondary mt-2 d-inline-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-week me-1" viewBox="0 0 16 16">
+                <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+            </svg>
+            <span class="d-none d-sm-inline">Haftalık Takvim</span>
+            <span class="d-inline d-sm-none">Haftalık</span>
+        </a>
+    </div>
+    <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-center justify-content-md-end">
+        <div class="btn-group shadow-sm flex-wrap">
+            <a asp-action="MonthlyCalendar" asp-route-year="@targetDate.AddMonths(-1).Year"
+               asp-route-month="@targetDate.AddMonths(-1).Month" class="btn btn-outline-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+                <span class="d-none d-sm-inline ms-1">Önceki</span>
+            </a>
+            <a asp-action="MonthlyCalendar" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-calendar-event me-1" viewBox="0 0 16 16">
+                    <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+                Bu Ay
+            </a>
+            <a asp-action="MonthlyCalendar" asp-route-year="@targetDate.AddMonths(1).Year"
+               asp-route-month="@targetDate.AddMonths(1).Month" class="btn btn-outline-primary">
+                <span class="d-none d-sm-inline me-1">Sonraki</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="calendar-wrapper">
+            <div class="monthly-calendar">
+            <!-- Gün başlıkları -->
+            <div class="calendar-header">Pazartesi</div>
+            <div class="calendar-header">Salı</div>
+            <div class="calendar-header">Çarşamba</div>
+            <div class="calendar-header">Perşembe</div>
+            <div class="calendar-header">Cuma</div>
+            <div class="calendar-header">Cumartesi</div>
+            <div class="calendar-header">Pazar</div>
+
+            <!-- Takvim günleri -->
+            @for (var date = startOfCalendar; date <= endOfCalendar; date = date.AddDays(1))
+            {
+                var isToday = date.Date == DateTime.Today;
+                var isCurrentMonth = date.Month == targetDate.Month;
+                var dayLessons = Model.Where(l => l.Baslangic.Date == date.Date).OrderBy(l => l.Baslangic).ToList();
+
+                <div class="calendar-day @(isCurrentMonth ? "" : "other-month") @(isToday ? "today" : "")"
+                     data-date="@date.ToString("yyyy-MM-dd")"
+                     onclick="if(event.target === this || event.target.classList.contains('day-number')) { window.location.href='@Url.Action("Create", new { baslangic = date.ToString("yyyy-MM-dd") + "T19:00" })'; }">
+                    <div class="day-number">@date.Day</div>
+
+                    @foreach (var lesson in dayLessons)
+                    {
+                        var statusClass = lesson.Durum switch
+                        {
+                            "Tamamlandı" => "completed",
+                            "İptal" => "cancelled",
+                            _ => "planned"
+                        };
+
+                        <div class="lesson-item @statusClass"
+                             draggable="true"
+                             data-lesson-id="@lesson.Id"
+                             data-lesson-start="@lesson.Baslangic.ToString("yyyy-MM-ddTHH:mm:ss")"
+                             data-lesson-end="@lesson.Bitis.ToString("yyyy-MM-ddTHH:mm:ss")"
+                             onclick="event.stopPropagation(); window.location.href='@Url.Action("Details", new { id = lesson.Id })'">
+                            <span class="lesson-time">@lesson.Baslangic.ToString("HH:mm")</span>
+                            <span>@lesson.Student.Ad</span>
+                        </div>
+                    }
+
+                    @if (dayLessons.Count > 3)
+                    {
+                        <div class="text-muted" style="font-size: 0.7rem; text-align: center;">
+                            +@(dayLessons.Count - 3) daha
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- Saat Seçimi Modal -->
+<div class="modal fade" id="timeSelectionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ders Saati Seçimi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Dersi taşımak istediğiniz saati belirleyin:</p>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timeOption" id="sameTime" value="same" checked>
+                        <label class="form-check-label" for="sameTime">
+                            <strong>Aynı saatte tut</strong>
+                            <small class="d-block text-muted" id="originalTimeText"></small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timeOption" id="customTime" value="custom">
+                        <label class="form-check-label" for="customTime">
+                            <strong>Farklı saat seç</strong>
+                        </label>
+                    </div>
+                    <div id="customTimeInput" class="mt-2" style="display: none; margin-left: 1.5rem;">
+                        <label class="form-label small">Yeni başlangıç saati:</label>
+                        <input type="time" class="form-control" id="newTimeInput">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="confirmTimeBtn">Taşı</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sürükle & Bırak Fonksiyonları
+    let draggedLesson = null;
+    let targetDateForDrop = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tüm ders öğelerini seç
+        const lessonItems = document.querySelectorAll('.lesson-item[draggable="true"]');
+        const calendarDays = document.querySelectorAll('.calendar-day');
+        const timeModal = new bootstrap.Modal(document.getElementById('timeSelectionModal'));
+
+        // Radio button değişikliğini dinle
+        document.getElementById('customTime').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('customTimeInput').style.display = 'block';
+            }
+        });
+
+        document.getElementById('sameTime').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('customTimeInput').style.display = 'none';
+            }
+        });
+
+        // Drag start - dersi sürüklemeye başladığında
+        lessonItems.forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedLesson = {
+                    id: this.getAttribute('data-lesson-id'),
+                    start: this.getAttribute('data-lesson-start'),
+                    end: this.getAttribute('data-lesson-end')
+                };
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', this.innerHTML);
+            });
+
+            item.addEventListener('dragend', function(e) {
+                this.classList.remove('dragging');
+                // Tüm drop-over sınıflarını temizle
+                calendarDays.forEach(day => day.classList.remove('drag-over'));
+            });
+        });
+
+        // Takvim günleri için drop zone ayarları
+        calendarDays.forEach(day => {
+            day.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('drag-over');
+            });
+
+            day.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            day.addEventListener('dragleave', function(e) {
+                // Sadece gün div'inden ayrılıyorsak sınıfı kaldır
+                if (e.target === this) {
+                    this.classList.remove('drag-over');
+                }
+            });
+
+            day.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('drag-over');
+
+                if (!draggedLesson) return;
+
+                targetDateForDrop = this.getAttribute('data-date');
+                const originalStart = new Date(draggedLesson.start);
+
+                // Orijinal saati göster
+                const timeString = originalStart.toTimeString().slice(0, 5); // HH:mm formatı
+                document.getElementById('originalTimeText').textContent = `(${timeString})`;
+
+                // Saat input'una da default olarak koy
+                document.getElementById('newTimeInput').value = timeString;
+
+                // Radio'yu sıfırla
+                document.getElementById('sameTime').checked = true;
+                document.getElementById('customTimeInput').style.display = 'none';
+
+                // Modal'ı aç
+                timeModal.show();
+            });
+        });
+
+        // Modal'daki "Taşı" butonuna tıklandığında
+        document.getElementById('confirmTimeBtn').addEventListener('click', function() {
+            if (!draggedLesson || !targetDateForDrop) return;
+
+            const originalStart = new Date(draggedLesson.start);
+            const originalEnd = new Date(draggedLesson.end);
+            const lessonDuration = originalEnd - originalStart; // Ders süresi (ms)
+
+            let newStart, newEnd;
+
+            // Kullanıcının seçimine göre saati belirle
+            const timeOption = document.querySelector('input[name="timeOption"]:checked').value;
+
+            if (timeOption === 'same') {
+                // Aynı saatte tut
+                newStart = new Date(targetDateForDrop + 'T' + originalStart.toTimeString().slice(0, 8));
+            } else {
+                // Farklı saat seçildi
+                const customTime = document.getElementById('newTimeInput').value;
+                if (!customTime) {
+                    alert('Lütfen bir saat seçin!');
+                    return;
+                }
+                newStart = new Date(targetDateForDrop + 'T' + customTime + ':00');
+            }
+
+            // Bitiş saatini hesapla (aynı süreyi koru)
+            newEnd = new Date(newStart.getTime() + lessonDuration);
+
+            // Modal'ı kapat
+            timeModal.hide();
+
+            // Backend'e güncelleme isteği gönder
+            updateLessonTime(draggedLesson.id, newStart, newEnd);
+        });
+    });
+
+    function updateLessonTime(lessonId, newStart, newEnd) {
+        // ISO formatına çevir
+        const startISO = newStart.toISOString();
+        const endISO = newEnd.toISOString();
+
+        fetch('/Lessons/UpdateLessonTime', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: parseInt(lessonId),
+                newStart: startISO,
+                newEnd: endISO
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || 'Ders güncellenirken bir hata oluştu');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Başarılı - sayfayı yenile
+                location.reload();
+            } else {
+                alert('Hata: ' + (data.message || 'Ders güncellenemedi'));
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            alert('Ders güncellenirken bir hata oluştu: ' + error.message);
+        });
+    }
+</script>
+
+<!-- İstatistikler ve Açıklama -->
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">@targetDate.ToString("MMMM", cultureInfo) Ayı İstatistikleri</h5>
+            </div>
+            <div class="card-body">
+                @{
+                    var monthLessons = Model.Where(l => l.Baslangic >= firstDayOfMonth && l.Baslangic <= lastDayOfMonth).ToList();
+                    var completedCount = monthLessons.Count(l => l.Durum == "Tamamlandı");
+                    var plannedCount = monthLessons.Count(l => l.Durum == "Planlı");
+                    var cancelledCount = monthLessons.Count(l => l.Durum == "İptal");
+                    var totalIncome = monthLessons.Where(l => l.Durum == "Tamamlandı").Sum(l => l.Ucret);
+                    var paidCount = monthLessons.Count(l => l.OdemeAlindi);
+                }
+
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3 class="text-primary mb-0">@monthLessons.Count</h3>
+                        <small class="text-muted">Toplam Ders</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-success mb-0">@completedCount</h3>
+                        <small class="text-muted">Tamamlandı</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-info mb-0">@plannedCount</h3>
+                        <small class="text-muted">Planlı</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-danger mb-0">@cancelledCount</h3>
+                        <small class="text-muted">İptal</small>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row text-center">
+                    <div class="col-md-6">
+                        <h4 class="text-success mb-0">@totalIncome.ToString("N0")₺</h4>
+                        <small class="text-muted">Toplam Gelir</small>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="text-warning mb-0">@paidCount</h4>
+                        <small class="text-muted">Ödeme Alındı</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Renk Açıklamaları</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="lesson-item planned d-inline-block mb-2" style="width: 100%;">
+                        Planlı Ders
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="lesson-item completed d-inline-block mb-2" style="width: 100%;">
+                        Tamamlanmış Ders
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="lesson-item cancelled d-inline-block mb-2" style="width: 100%;">
+                        İptal Edilmiş Ders
+                    </div>
+                </div>
+                <hr />
+                <p class="small text-muted mb-0">
+                    Bir güne tıklayarak yeni ders ekleyebilirsiniz. Ders üzerine tıklayarak detaylarını görüntüleyebilirsiniz.
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Hızlı Erişim</h6>
+            </div>
+            <div class="card-body">
+                <a asp-action="Calendar" class="btn btn-outline-primary w-100 mb-2">
+                    📅 Haftalık Takvim
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100 mb-2">
+                    📋 Ders Listesi
+                </a>
+                <a asp-action="Create" class="btn btn-success w-100">
+                    ➕ Yeni Ders Ekle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

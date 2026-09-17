@@ -1,0 +1,23 @@
+@model Expense
+
+@{
+    ViewData["Title"] = "Gider Ekle";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h1 class="h3 fw-bold">Gider Ekle</h1>
+        <form asp-action="CreateExpense" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <partial name="_ExpenseFormFields" model="Model" />
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-danger">Kaydet</button>
+                <a asp-action="Expenses" class="btn btn-light">Vazgec</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,48 @@
+@model PrivateTutorTracker.Models.Payment
+
+@{
+    ViewData["Title"] = "Ödeme Kaydını Sil";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Ödeme Kaydını Sil</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5>Bu işlemi onaylıyor musunuz?</h5>
+                    <p class="mb-0">Ödeme kaydı kalıcı olarak silinecektir.</p>
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Öğrenci:</dt>
+                    <dd class="col-sm-8">@Model.Student.AdSoyad</dd>
+
+                    <dt class="col-sm-4">Tarih:</dt>
+                    <dd class="col-sm-8">@Model.Tarih.ToString("dd.MM.yyyy")</dd>
+
+                    <dt class="col-sm-4">Tutar:</dt>
+                    <dd class="col-sm-8 fw-bold text-success">@Model.Tutar.ToString("N0")₺</dd>
+
+                    <dt class="col-sm-4">Dönem:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-info">@Model.Donem</span>
+                    </dd>
+
+                    <dt class="col-sm-4">Açıklama:</dt>
+                    <dd class="col-sm-8">@(Model.Aciklama ?? "-")</dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
